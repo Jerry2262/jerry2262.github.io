@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="一个可直接游玩的静态版 2048 游戏。" />
+    <title>2048 | Jerry</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="home-link" href="../../index.html" aria-label="返回主页">
+        <span aria-hidden="true">‹</span>
+        <span>主页</span>
+      </a>
+      <div class="score-row" aria-label="游戏分数">
+        <div class="score-box">
+          <span>分数</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="score-box">
+          <span>最佳</span>
+          <strong id="bestScore">0</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-shell">
+      <section class="game-panel" aria-label="2048 游戏">
+        <div class="game-top">
+          <div>
+            <p class="eyebrow">Static Game</p>
+            <h1>2048</h1>
+          </div>
+          <div class="action-row">
+            <button class="ghost-button" id="undoButton" type="button">撤销</button>
+            <button class="solid-button" id="newGameButton" type="button">新局</button>
+          </div>
+        </div>
+
+        <div class="board-shell">
+          <div class="board" id="board" aria-live="polite"></div>
+          <div class="game-message" id="gameMessage" hidden>
+            <strong id="messageTitle">游戏结束</strong>
+            <button class="solid-button" id="messageButton" type="button">
+              再来一局
+            </button>
+          </div>
+        </div>
+
+        <div class="direction-pad" aria-label="方向控制">
+          <button type="button" data-direction="up" aria-label="向上移动">↑</button>
+          <button type="button" data-direction="left" aria-label="向左移动">←</button>
+          <button type="button" data-direction="down" aria-label="向下移动">↓</button>
+          <button type="button" data-direction="right" aria-label="向右移动">→</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>

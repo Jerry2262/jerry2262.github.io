@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Jerry 的个人主页，展示项目、想法与联系方式。"
+      content="Jerry 的个人主页，收集有意思的静态网页应用和小游戏。"
     />
     <title>Jerry | 个人主页</title>
     <link rel="preload" href="assets/hero-workspace.png" as="image" />
@@ -19,7 +19,7 @@
       </a>
       <nav class="nav-links" aria-label="页面导航">
         <a href="#about">关于</a>
-        <a href="#work">项目</a>
+        <a href="#work">应用</a>
         <a href="#contact">联系</a>
       </nav>
     </header>
@@ -28,12 +28,12 @@
       <section class="hero" aria-label="个人简介">
         <div class="hero-copy">
           <p class="eyebrow">Personal Homepage</p>
-          <h1>构建简洁、可靠、有质感的数字作品。</h1>
+          <h1>一些简洁、有趣、点开即用的静态网页应用。</h1>
           <p class="hero-text">
-            我关注前端体验、工程效率与产品细节，把想法打磨成清晰可用的页面、工具和项目。
+            这里会逐步收集小游戏、实用工具和交互实验。所有内容都可以直接在浏览器里使用或游玩。
           </p>
           <div class="hero-actions" aria-label="主要操作">
-            <a class="button primary" href="#work">查看项目</a>
+            <a class="button primary" href="apps/2048/index.html">开始 2048</a>
             <a class="button secondary" href="https://github.com/jerry2262">GitHub</a>
           </div>
         </div>
@@ -50,33 +50,34 @@
       <section id="about" class="section intro-section">
         <div class="section-heading">
           <p class="eyebrow">About</p>
-          <h2>一个轻量但完整的起点</h2>
+          <h2>主页是入口，应用是主体</h2>
         </div>
         <p class="intro-text">
-          这里可以放你的个人介绍、技术方向、近期关注，或者作为作品集、博客和项目入口的首页。
+          每个静态网页应用都会独立放在自己的目录里，主页提供统一入口。第一个应用是经典数字合成游戏 2048。
         </p>
       </section>
 
       <section id="work" class="section">
         <div class="section-heading">
           <p class="eyebrow">Work</p>
-          <h2>精选内容</h2>
+          <h2>应用入口</h2>
         </div>
         <div class="feature-grid">
-          <article class="feature-card">
+          <a class="feature-card app-card is-live" href="apps/2048/index.html">
             <span class="card-index">01</span>
-            <h3>项目作品</h3>
-            <p>记录正在构建的应用、实验性工具和开源项目，让访问者快速了解你的能力边界。</p>
-          </article>
+            <h3>2048</h3>
+            <p>滑动数字方块，合并相同数字，挑战更高分。</p>
+            <span class="card-action">进入游戏</span>
+          </a>
           <article class="feature-card">
             <span class="card-index">02</span>
-            <h3>技术文章</h3>
-            <p>沉淀解决问题的过程、工程实践和学习笔记，为主页增加长期可维护的内容价值。</p>
+            <h3>下一个应用</h3>
+            <p>可以继续添加计算器、番茄钟、记忆卡片、扫雷或其他轻量工具。</p>
           </article>
           <article class="feature-card">
             <span class="card-index">03</span>
-            <h3>联系合作</h3>
-            <p>提供清晰的联系入口，方便朋友、同事或潜在合作伙伴找到你。</p>
+            <h3>更多实验</h3>
+            <p>适合放一些交互动画、数据可视化或纯前端小作品。</p>
           </article>
         </div>
       </section>
