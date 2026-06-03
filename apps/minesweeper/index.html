@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="一个可直接游玩的静态版扫雷游戏。" />
+    <title>扫雷 | Jerry</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="home-link" href="../../index.html" aria-label="返回主页">
+        <span aria-hidden="true">‹</span>
+        <span>主页</span>
+      </a>
+      <div class="status-row" aria-label="游戏状态">
+        <div class="status-box">
+          <span>剩余</span>
+          <strong id="mineCount">10</strong>
+        </div>
+        <div class="status-box">
+          <span>时间</span>
+          <strong id="timer">000</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-shell">
+      <section class="game-panel" aria-label="扫雷游戏">
+        <div class="game-top">
+          <div>
+            <p class="eyebrow">Static Game</p>
+            <h1>扫雷</h1>
+          </div>
+          <button class="solid-button" id="newGameButton" type="button">新局</button>
+        </div>
+
+        <div class="controls" aria-label="游戏设置">
+          <div class="segmented" id="levelSelector" aria-label="难度">
+            <button type="button" data-level="easy" aria-pressed="true">初级</button>
+            <button type="button" data-level="medium" aria-pressed="false">中级</button>
+            <button type="button" data-level="hard" aria-pressed="false">高级</button>
+          </div>
+          <button class="mode-button" id="modeButton" type="button" aria-pressed="false">
+            打开
+          </button>
+        </div>
+
+        <div class="board-wrap">
+          <div class="board" id="board" aria-label="扫雷棋盘"></div>
+          <div class="game-message" id="gameMessage" hidden>
+            <strong id="messageTitle">游戏结束</strong>
+            <button class="solid-button" id="messageButton" type="button">再来一局</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
