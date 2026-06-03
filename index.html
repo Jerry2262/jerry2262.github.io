@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Jerry 的个人主页，展示项目、想法与联系方式。"
+    />
+    <title>Jerry | 个人主页</title>
+    <link rel="preload" href="assets/hero-workspace.png" as="image" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" aria-label="主导航">
+      <a class="brand" href="#home" aria-label="Jerry 首页">
+        <span class="brand-mark">J</span>
+        <span>Jerry</span>
+      </a>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#about">关于</a>
+        <a href="#work">项目</a>
+        <a href="#contact">联系</a>
+      </nav>
+    </header>
+
+    <main id="home">
+      <section class="hero" aria-label="个人简介">
+        <div class="hero-copy">
+          <p class="eyebrow">Personal Homepage</p>
+          <h1>构建简洁、可靠、有质感的数字作品。</h1>
+          <p class="hero-text">
+            我关注前端体验、工程效率与产品细节，把想法打磨成清晰可用的页面、工具和项目。
+          </p>
+          <div class="hero-actions" aria-label="主要操作">
+            <a class="button primary" href="#work">查看项目</a>
+            <a class="button secondary" href="https://github.com/jerry2262">GitHub</a>
+          </div>
+        </div>
+        <div class="hero-media" aria-hidden="true">
+          <img
+            src="assets/hero-workspace.png"
+            alt=""
+            width="1672"
+            height="941"
+          />
+        </div>
+      </section>
+
+      <section id="about" class="section intro-section">
+        <div class="section-heading">
+          <p class="eyebrow">About</p>
+          <h2>一个轻量但完整的起点</h2>
+        </div>
+        <p class="intro-text">
+          这里可以放你的个人介绍、技术方向、近期关注，或者作为作品集、博客和项目入口的首页。
+        </p>
+      </section>
+
+      <section id="work" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Work</p>
+          <h2>精选内容</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="card-index">01</span>
+            <h3>项目作品</h3>
+            <p>记录正在构建的应用、实验性工具和开源项目，让访问者快速了解你的能力边界。</p>
+          </article>
+          <article class="feature-card">
+            <span class="card-index">02</span>
+            <h3>技术文章</h3>
+            <p>沉淀解决问题的过程、工程实践和学习笔记，为主页增加长期可维护的内容价值。</p>
+          </article>
+          <article class="feature-card">
+            <span class="card-index">03</span>
+            <h3>联系合作</h3>
+            <p>提供清晰的联系入口，方便朋友、同事或潜在合作伙伴找到你。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" class="contact-band" aria-label="联系信息">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2>有新的想法或项目，欢迎联系。</h2>
+        </div>
+        <a class="button contact-button" href="https://github.com/jerry2262">
+          打开 GitHub
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
