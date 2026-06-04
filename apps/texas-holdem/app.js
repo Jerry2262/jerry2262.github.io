@@ -13,6 +13,7 @@ const foldButton = document.querySelector("#foldButton");
 const checkButton = document.querySelector("#checkButton");
 const callButton = document.querySelector("#callButton");
 const raiseButton = document.querySelector("#raiseButton");
+const raiseAmountInput = document.querySelector("#raiseAmount");
 const newHandButton = document.querySelector("#newHandButton");
 const resetButton = document.querySelector("#resetButton");
 
@@ -121,13 +122,38 @@ function renderActions(state) {
   checkButton.disabled = !isHeroTurn || !actions.check;
   callButton.disabled = !isHeroTurn || !actions.call;
   raiseButton.disabled = !isHeroTurn || !actions.raise;
+  raiseAmountInput.disabled = !isHeroTurn || !actions.raise;
   callButton.textContent = toCall > 0 ? `跟注 ${toCall}` : "跟注";
-  raiseButton.textContent = actions.raiseTo ? `加注到 ${actions.raiseTo}` : "加注";
+  raiseButton.textContent = "加注";
+
+  if (actions.raise) {
+    const min = actions.minRaiseTo;
+    const max = actions.maxRaiseTo;
+    raiseAmountInput.min = String(min);
+    raiseAmountInput.max = String(max);
+    raiseAmountInput.step = String(state.bigBlind);
+
+    const current = Number(raiseAmountInput.value);
+    if (!Number.isFinite(current) || current < min || current > max) {
+      raiseAmountInput.value = String(actions.defaultRaiseTo);
+    }
+  } else {
+    raiseAmountInput.value = "";
+    raiseAmountInput.removeAttribute("min");
+    raiseAmountInput.removeAttribute("max");
+  }
 
   if (state.handOver) {
     actionHint.textContent = "本局结束，可以开始下一局。";
   } else if (state.currentPlayerId === "hero") {
-    actionHint.textContent = toCall > 0 ? `轮到你行动，需要跟注 ${toCall}。` : "轮到你行动，可以过牌或加注。";
+    if (actions.raise) {
+      actionHint.textContent =
+        toCall > 0
+          ? `轮到你行动，需要跟注 ${toCall}。加注范围 ${actions.minRaiseTo}-${actions.maxRaiseTo}。`
+          : `轮到你行动，可以过牌或加注。加注范围 ${actions.minRaiseTo}-${actions.maxRaiseTo}。`;
+    } else {
+      actionHint.textContent = toCall > 0 ? `轮到你行动，需要跟注 ${toCall}。` : "轮到你行动，可以过牌。";
+    }
   } else {
     const player = state.players.find((item) => item.id === state.currentPlayerId);
     actionHint.textContent = `${player?.name || "AI"} 正在思考。`;
@@ -144,10 +170,20 @@ function act(type) {
   }
 
   const legal = engine.getPublicState().legalActions;
-  const action = type === "raise" ? { type, raiseTo: legal.raiseTo } : { type };
+  const action = type === "raise" ? { type, raiseTo: getRaiseAmount(legal) } : { type };
   engine.playerAction(action);
   render();
   progressAi();
+}
+
+function getRaiseAmount(legal) {
+  const raw = Number(raiseAmountInput.value);
+
+  if (!Number.isFinite(raw)) {
+    return legal.defaultRaiseTo;
+  }
+
+  return Math.min(legal.maxRaiseTo, Math.max(legal.minRaiseTo, Math.floor(raw)));
 }
 
 async function progressAi() {

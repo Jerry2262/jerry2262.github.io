@@ -11,14 +11,14 @@ const PokerAi = (() => {
 
         if (context.toCall === 0) {
           if (context.legalActions.raise && adjusted > 0.66) {
-            return { type: "raise", raiseTo: context.currentBet + context.bigBlind };
+            return { type: "raise", raiseTo: context.legalActions.defaultRaiseTo };
           }
 
           return { type: "check" };
         }
 
         if (context.legalActions.raise && adjusted > 0.78 && pressure < 0.32) {
-          return { type: "raise", raiseTo: context.currentBet + context.bigBlind };
+          return { type: "raise", raiseTo: context.legalActions.defaultRaiseTo };
         }
 
         if (adjusted > 0.42 || pressure < adjusted * 0.36) {

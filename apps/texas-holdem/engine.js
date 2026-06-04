@@ -214,6 +214,7 @@ const PokerEngine = (() => {
       this.community = [];
       this.stage = "preflop";
       this.currentBet = 0;
+      this.minRaise = this.bigBlind;
       this.handOver = false;
       this.winners = [];
       this.statusText = "新牌局开始";
@@ -243,6 +244,7 @@ const PokerEngine = (() => {
       this.commit(this.players[this.bigBlindIndex], this.bigBlind);
       this.players[this.bigBlindIndex].lastAction = `大盲 ${this.bigBlind}`;
       this.currentBet = Math.max(...this.players.map((player) => player.bet));
+      this.minRaise = this.bigBlind;
     }
 
     nextSeat(index) {
@@ -293,6 +295,19 @@ const PokerEngine = (() => {
       return Math.max(0, this.currentBet - player.bet);
     }
 
+    getRaiseLimits(player) {
+      const toCall = this.getToCall(player);
+      const maxRaiseTo = player.bet + player.stack;
+      const minRaiseTo = this.currentBet + this.minRaise;
+
+      return {
+        minRaiseTo,
+        maxRaiseTo,
+        defaultRaiseTo: Math.min(minRaiseTo, maxRaiseTo),
+        canRaise: player.stack > toCall && maxRaiseTo >= minRaiseTo,
+      };
+    }
+
     getLegalActions(playerId = "hero") {
       const player = this.players.find((item) => item.id === playerId);
 
@@ -301,14 +316,18 @@ const PokerEngine = (() => {
       }
 
       const toCall = this.getToCall(player);
+      const raiseLimits = this.getRaiseLimits(player);
 
       return {
         fold: toCall > 0,
         check: toCall === 0,
         call: toCall > 0,
-        raise: player.stack > toCall,
+        raise: raiseLimits.canRaise,
         toCall,
-        raiseTo: Math.min(this.currentBet + this.bigBlind, player.bet + player.stack),
+        minRaiseTo: raiseLimits.minRaiseTo,
+        maxRaiseTo: raiseLimits.maxRaiseTo,
+        defaultRaiseTo: raiseLimits.defaultRaiseTo,
+        raiseTo: raiseLimits.defaultRaiseTo,
       };
     }
 
@@ -341,13 +360,25 @@ const PokerEngine = (() => {
         player.acted = true;
         player.lastAction = "弃牌";
         this.log(`${player.name} 弃牌。`);
-      } else if (action.type === "raise" && player.stack > toCall) {
-        const target = Math.max(this.currentBet + this.bigBlind, action.raiseTo || 0);
-        const needed = Math.min(player.stack, target - player.bet);
+      } else if (action.type === "raise") {
+        const raiseLimits = this.getRaiseLimits(player);
+
+        if (!raiseLimits.canRaise) {
+          return;
+        }
+
+        const requested = Number(action.raiseTo);
+        const target = Math.min(
+          raiseLimits.maxRaiseTo,
+          Math.max(raiseLimits.minRaiseTo, Number.isFinite(requested) ? requested : raiseLimits.defaultRaiseTo)
+        );
+        const previousBet = this.currentBet;
+        const needed = target - player.bet;
         this.commit(player, needed);
 
         if (player.bet > this.currentBet) {
           this.currentBet = player.bet;
+          this.minRaise = Math.max(this.bigBlind, this.currentBet - previousBet);
           this.players.forEach((item) => {
             if (item.id !== player.id && !item.folded && !item.allIn) {
               item.acted = false;
@@ -419,6 +450,7 @@ const PokerEngine = (() => {
         player.acted = false;
       });
       this.currentBet = 0;
+      this.minRaise = this.bigBlind;
 
       if (this.stage === "flop") {
         this.community.push(this.deck.pop(), this.deck.pop(), this.deck.pop());
@@ -488,15 +520,20 @@ const PokerEngine = (() => {
       };
     }
 
+    shouldRevealHoleCards(player) {
+      if (player.isHuman) {
+        return true;
+      }
+
+      return this.stage === "showdown" && !player.folded;
+    }
+
     getPublicState() {
       return {
         players: this.players.map((player, index) => ({
           ...player,
           seatIndex: index,
-          hole:
-            player.isHuman || this.handOver
-              ? player.hole
-              : player.hole.map(() => ({ hidden: true })),
+          hole: this.shouldRevealHoleCards(player) ? player.hole : player.hole.map(() => ({ hidden: true })),
         })),
         community: this.community,
         stage: this.stage,

@@ -33,6 +33,13 @@ The context passed to `chooseAction(context)` contains:
 - `legalActions`
 - `evaluateBestHand` for JavaScript providers
 
+`legalActions` exposes raise bounds as total bet targets for the current betting
+round:
+
+- `minRaiseTo`
+- `maxRaiseTo`
+- `defaultRaiseTo`
+
 ## WASM adapter shape
 
 `PokerAi.createWasmAiProvider(wasmModule)` expects the WASM JS wrapper to expose:

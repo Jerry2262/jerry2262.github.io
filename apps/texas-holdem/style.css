@@ -69,7 +69,8 @@ button {
 
 .status-row,
 .top-actions,
-.action-buttons {
+.action-buttons,
+.action-controls {
   display: flex;
   gap: 10px;
 }
@@ -364,6 +365,43 @@ button:disabled {
   font-weight: 800;
 }
 
+.action-controls {
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.raise-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px 0 12px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.raise-field input {
+  width: 92px;
+  min-height: 32px;
+  color: var(--charcoal);
+  background: #f7faf7;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.raise-field input:disabled {
+  opacity: 0.45;
+}
+
 .log-panel {
   display: grid;
   gap: 6px;
@@ -388,7 +426,8 @@ button:disabled {
 
   .status-row,
   .top-actions,
-  .action-buttons {
+  .action-buttons,
+  .action-controls {
     width: 100%;
   }
 
@@ -396,6 +435,18 @@ button:disabled {
   .top-actions button,
   .action-buttons button {
     flex: 1;
+  }
+
+  .action-controls {
+    align-items: stretch;
+  }
+
+  .raise-field {
+    justify-content: space-between;
+  }
+
+  .raise-field input {
+    width: 118px;
   }
 
   .table {
@@ -433,7 +484,12 @@ button:disabled {
   }
 
   .action-buttons,
-  .top-actions {
+  .top-actions,
+  .action-controls {
     flex-direction: column;
+  }
+
+  .raise-field input {
+    width: 100%;
   }
 }
