@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="一个单人游玩的静态版德州扑克。" />
+    <title>德州扑克 | Jerry</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="home-link" href="../../index.html" aria-label="返回主页">
+        <span aria-hidden="true">‹</span>
+        <span>主页</span>
+      </a>
+      <div class="status-row" aria-label="牌局状态">
+        <div class="status-box">
+          <span>底池</span>
+          <strong id="potValue">0</strong>
+        </div>
+        <div class="status-box">
+          <span>盲注</span>
+          <strong id="blindValue">10/20</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="poker-shell">
+      <section class="table-panel" aria-label="德州扑克牌桌">
+        <div class="game-top">
+          <div>
+            <p class="eyebrow">Static Game</p>
+            <h1>德州扑克</h1>
+          </div>
+          <div class="top-actions">
+            <button class="ghost-button" id="resetButton" type="button">重置筹码</button>
+            <button class="solid-button" id="newHandButton" type="button">下一局</button>
+          </div>
+        </div>
+
+        <div class="table">
+          <div class="community-area">
+            <p id="stageLabel">翻前</p>
+            <div class="community-cards" id="communityCards"></div>
+            <strong id="statusText">等待行动</strong>
+          </div>
+          <div class="seats" id="seats"></div>
+        </div>
+
+        <div class="action-panel">
+          <div class="hint" id="actionHint">轮到你行动。</div>
+          <div class="action-buttons">
+            <button class="ghost-button" id="foldButton" type="button">弃牌</button>
+            <button class="ghost-button" id="checkButton" type="button">过牌</button>
+            <button class="ghost-button" id="callButton" type="button">跟注</button>
+            <button class="solid-button" id="raiseButton" type="button">加注</button>
+          </div>
+        </div>
+
+        <div class="log-panel" id="logPanel" aria-label="牌局记录"></div>
+      </section>
+    </main>
+
+    <script src="engine.js"></script>
+    <script src="ai-provider.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
