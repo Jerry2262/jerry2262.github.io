@@ -1,2 +1,5 @@
 # Local plaintext and password for the encrypted secret app.
 apps/secret/private/
+
+# Local Pi agent state.
+.pi/
