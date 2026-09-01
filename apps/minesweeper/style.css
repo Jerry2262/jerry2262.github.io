@@ -1,18 +1,24 @@
 :root {
   color-scheme: light;
-  --ink: #1d2824;
-  --muted: #62736c;
-  --paper: #f9fbf6;
+  --ink: #18221f;
+  --muted: #60706b;
+  --paper: #fbfcf8;
+  --wash: #eef5f2;
   --panel: #ffffff;
-  --line: #d9e2db;
+  --panel-glass: rgba(255, 255, 255, 0.84);
+  --line: #d8e0dc;
+  --teal: #0f766e;
+  --coral: #b7463b;
+  --gold: #c39b37;
+  --charcoal: #24302d;
+  --shadow: 0 24px 70px rgba(24, 34, 31, 0.14);
+  --header-height: 72px;
+  --content-max: 1200px;
+  --page-x: clamp(18px, 5vw, 72px);
   --cell: #dfe8e0;
   --cell-open: #f7faf4;
-  --teal: #0f766e;
-  --coral: #d85c4a;
-  --gold: #c39b37;
-  --charcoal: #25322d;
-  --shadow: 0 24px 70px rgba(29, 40, 36, 0.16);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 }
 
@@ -25,8 +31,12 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    radial-gradient(circle at 78% 18%, rgba(216, 92, 74, 0.12), transparent 26%),
-    linear-gradient(135deg, #fbfcf8 0%, #edf5f1 100%);
+    radial-gradient(
+      circle at 18% 14%,
+      rgba(15, 118, 110, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #fbfcf8 0%, #eef5f1 100%);
 }
 
 button,
@@ -38,12 +48,22 @@ button {
   cursor: pointer;
 }
 
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px clamp(18px, 5vw, 64px);
+  min-height: var(--header-height);
+  padding: 14px max(var(--page-x), calc((100vw - var(--content-max)) / 2));
+  background: rgba(251, 252, 248, 0.86);
+  border-bottom: 1px solid rgba(216, 224, 220, 0.7);
+  backdrop-filter: blur(18px);
 }
 
 .home-link {
@@ -77,7 +97,7 @@ button {
   min-width: 92px;
   padding: 9px 12px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--panel-glass);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -99,7 +119,7 @@ button {
 .game-shell {
   display: grid;
   place-items: center;
-  min-height: calc(100svh - 82px);
+  min-height: calc(100svh - var(--header-height));
   padding: 8px clamp(14px, 4vw, 44px) 42px;
 }
 
@@ -135,8 +155,11 @@ h1 {
 .segmented button {
   min-height: 44px;
   border-radius: 8px;
-  font-weight: 850;
-  transition: transform 150ms ease, background 150ms ease, color 150ms ease,
+  font-weight: 800;
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
     border-color 150ms ease;
 }
 
@@ -151,7 +174,7 @@ h1 {
   min-width: 92px;
   padding: 0 16px;
   color: var(--charcoal);
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
 }
 
@@ -167,6 +190,11 @@ h1 {
   transform: translateY(-2px);
 }
 
+.top-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .controls {
   display: flex;
   align-items: center;
@@ -179,7 +207,7 @@ h1 {
   display: inline-flex;
   gap: 6px;
   padding: 5px;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--panel-glass);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -202,10 +230,14 @@ h1 {
   position: relative;
   width: 100%;
   padding: clamp(10px, 2.2vw, 14px);
-  overflow-x: auto;
+  overflow: hidden;
   background: var(--charcoal);
   border-radius: 8px;
   box-shadow: var(--shadow);
+}
+
+.board-scroll {
+  overflow-x: auto;
 }
 
 .board {
@@ -302,22 +334,9 @@ h1 {
 }
 
 @media (max-width: 620px) {
-  .app-header {
-    align-items: stretch;
-    flex-direction: column;
-    padding-top: 14px;
-  }
-
-  .status-row {
-    width: 100%;
-  }
-
-  .status-box {
-    flex: 1;
-  }
-
   .game-shell {
     place-items: start center;
+    min-height: auto;
     padding-bottom: 26px;
   }
 
@@ -331,6 +350,7 @@ h1 {
     font-size: 4rem;
   }
 
+  .top-actions,
   .solid-button,
   .mode-button {
     width: 100%;
@@ -347,5 +367,34 @@ h1 {
 
   .game-message strong {
     font-size: 2.35rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .status-row {
+    width: 100%;
+  }
+
+  .status-box {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solid-button,
+  .mode-button,
+  .segmented button {
+    transition: none;
+  }
+
+  .solid-button:hover,
+  .mode-button:hover,
+  .segmented button:hover {
+    transform: none;
   }
 }

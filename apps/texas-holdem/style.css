@@ -1,17 +1,24 @@
 :root {
   color-scheme: light;
-  --ink: #17231f;
-  --muted: #64736d;
+  --ink: #18221f;
+  --muted: #60706b;
   --paper: #fbfcf8;
+  --wash: #eef5f2;
   --panel: #ffffff;
-  --line: #d9e2db;
-  --felt: #0f766e;
-  --felt-dark: #0b5d58;
-  --coral: #d85c4a;
+  --panel-glass: rgba(255, 255, 255, 0.84);
+  --line: #d8e0dc;
+  --teal: #0f766e;
+  --coral: #b7463b;
   --gold: #c39b37;
-  --charcoal: #25322d;
-  --shadow: 0 24px 70px rgba(23, 35, 31, 0.17);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+  --charcoal: #24302d;
+  --shadow: 0 24px 70px rgba(24, 34, 31, 0.14);
+  --header-height: 72px;
+  --content-max: 1200px;
+  --page-x: clamp(18px, 5vw, 72px);
+  --felt: var(--teal);
+  --felt-dark: #0b5d58;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 }
 
@@ -24,8 +31,12 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    radial-gradient(circle at 18% 14%, rgba(15, 118, 110, 0.14), transparent 28%),
-    linear-gradient(135deg, #fbfcf8 0%, #edf5f1 100%);
+    radial-gradient(
+      circle at 18% 14%,
+      rgba(15, 118, 110, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(135deg, #fbfcf8 0%, #eef5f1 100%);
 }
 
 button,
@@ -37,12 +48,23 @@ button {
   cursor: pointer;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px clamp(18px, 5vw, 64px);
+  min-height: var(--header-height);
+  padding: 14px max(var(--page-x), calc((100vw - var(--content-max)) / 2));
+  background: rgba(251, 252, 248, 0.86);
+  border-bottom: 1px solid rgba(216, 224, 220, 0.7);
+  backdrop-filter: blur(18px);
 }
 
 .home-link {
@@ -79,7 +101,7 @@ button {
   min-width: 92px;
   padding: 9px 12px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--panel-glass);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -95,13 +117,13 @@ button {
   display: block;
   margin-top: 2px;
   color: var(--charcoal);
-  font-size: 1.2rem;
+  font-size: 1.25rem;
 }
 
 .poker-shell {
   display: grid;
   place-items: center;
-  min-height: calc(100svh - 82px);
+  min-height: calc(100svh - var(--header-height));
   padding: 8px clamp(14px, 4vw, 44px) 42px;
 }
 
@@ -137,14 +159,17 @@ h1 {
   min-height: 44px;
   padding: 0 16px;
   border-radius: 8px;
-  font-weight: 850;
-  transition: transform 150ms ease, background 150ms ease, color 150ms ease,
+  font-weight: 800;
+  transition:
+    transform 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
     border-color 150ms ease;
 }
 
 .ghost-button {
   color: var(--charcoal);
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--panel-glass);
   border: 1px solid var(--line);
 }
 
@@ -413,7 +438,6 @@ button:disabled {
 }
 
 @media (max-width: 860px) {
-  .app-header,
   .game-top,
   .action-panel {
     align-items: stretch;
@@ -424,14 +448,12 @@ button:disabled {
     font-size: 3.45rem;
   }
 
-  .status-row,
   .top-actions,
   .action-buttons,
   .action-controls {
     width: 100%;
   }
 
-  .status-box,
   .top-actions button,
   .action-buttons button {
     flex: 1;
@@ -479,6 +501,23 @@ button:disabled {
 }
 
 @media (max-width: 560px) {
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .status-row {
+    width: 100%;
+  }
+
+  .status-box {
+    flex: 1;
+  }
+
+  .poker-shell {
+    min-height: auto;
+  }
+
   h1 {
     font-size: 2.7rem;
   }
@@ -491,5 +530,17 @@ button:disabled {
 
   .raise-field input {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-button,
+  .solid-button {
+    transition: none;
+  }
+
+  .ghost-button:hover,
+  .solid-button:hover {
+    transform: none;
   }
 }

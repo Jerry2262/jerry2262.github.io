@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Jerry 的个人主页，收集我感兴趣的玩具项目。"
+      content="Jerry 的个人主页，包含玩具项目、实用小工具与技术博客。"
     />
     <title>Jerry | 个人主页</title>
     <link rel="preload" href="assets/hero-workspace.png" as="image" />
@@ -29,16 +29,15 @@
     <main id="home">
       <section class="hero" aria-label="个人简介">
         <div class="hero-copy">
-          <p class="eyebrow">Personal Homepage</p>
-          <h1>一些简洁、有趣、点开即用的玩具项目。</h1>
+          <p class="eyebrow">Jerry's Homepage</p>
+          <h1>简洁、有趣，点开即用的小项目与随手记下的想法。</h1>
           <p class="hero-text">
-            这里会逐步收集一些玩具项目，所有内容都可以直接在浏览器里使用。
+            这是我的个人主页：常用的小游戏、交互展示、实用工具，以及技术笔记和生活碎片。博客独立成站，也可以从这里直接前往。
           </p>
-          <div class="hero-actions" aria-label="主要操作">
-            <a class="button primary" href="apps/texas-holdem/index.html">德州扑克</a>
-            <a class="button secondary" href="apps/minesweeper/index.html">扫雷</a>
-            <a class="button secondary" href="apps/2048/index.html">2048</a>
-            <a class="button secondary" href="apps/secret/index.html">秘密</a>
+          <div class="hero-actions" aria-label="页面快捷入口">
+            <a class="button primary" href="#work">玩具项目</a>
+            <a class="button secondary" href="#projects">实用工具</a>
+            <a class="button secondary" href="#blog">博客</a>
           </div>
         </div>
         <div class="hero-media" aria-hidden="true">
@@ -54,48 +53,48 @@
       <section id="about" class="section intro-section">
         <div class="section-heading">
           <p class="eyebrow">About</p>
-          <h2>主页是入口，玩具项目是主体</h2>
+          <h2>一个持续更新的个人主页</h2>
         </div>
         <p class="intro-text">
-          每个玩具项目都会独立放在自己的目录里，主页提供统一入口。当前已经有 2048、扫雷、单人德州扑克、秘密页面实验和公路车展示，另外还有一个独立的博客站。
+          平时会写一些小游戏、交互展示和实用小工具，也会把技术思考、投资笔记和生活碎片整理到独立博客里。所有内容都保持轻量，打开即可使用。
         </p>
       </section>
 
       <section id="work" class="section">
         <div class="section-heading">
-          <p class="eyebrow">Work</p>
+          <p class="eyebrow">Toys</p>
           <h2>玩具项目</h2>
         </div>
         <div class="feature-grid">
-          <a class="feature-card app-card is-live" href="apps/2048/index.html">
+          <a class="feature-card app-card" href="apps/2048/index.html">
             <span class="card-index">01</span>
             <h3>2048</h3>
             <p>滑动数字方块，合并相同数字，挑战更高分。</p>
             <span class="card-action">进入游戏</span>
           </a>
-          <a class="feature-card app-card is-live" href="apps/minesweeper/index.html">
+          <a class="feature-card app-card" href="apps/minesweeper/index.html">
             <span class="card-index">02</span>
             <h3>扫雷</h3>
             <p>推理数字线索，标记地雷，尽量用最少时间清空棋盘。</p>
             <span class="card-action">进入游戏</span>
           </a>
-          <a class="feature-card app-card is-live" href="apps/texas-holdem/index.html">
+          <a class="feature-card app-card" href="apps/texas-holdem/index.html">
             <span class="card-index">03</span>
             <h3>德州扑克</h3>
             <p>单人牌桌，对阵简易 AI，后续可替换为 WASM 决策算法。</p>
             <span class="card-action">进入游戏</span>
           </a>
-          <a class="feature-card app-card is-live" href="apps/secret/index.html">
+          <a class="feature-card app-card" href="apps/secret/index.html">
             <span class="card-index">04</span>
             <h3>秘密</h3>
             <p>用浏览器端密码解密密文页面，正确密码才会渲染真实内容。</p>
-            <span class="card-action">打开</span>
+            <span class="card-action">打开页面</span>
           </a>
-          <a class="feature-card app-card is-live" href="cycle/">
+          <a class="feature-card app-card" href="cycle/">
             <span class="card-index">05</span>
             <h3>公路车</h3>
             <p>悬停查看公路车各组件规格与可升级版本，深色主题交互展示。</p>
-            <span class="card-action">打开</span>
+            <span class="card-action">打开页面</span>
           </a>
         </div>
       </section>
@@ -107,19 +106,24 @@
         </div>
         <div class="feature-grid">
           <a
-            class="feature-card app-card is-live"
+            class="feature-card app-card"
             href="https://github.com/jerry2262/milkman"
+            aria-label="查看 milkman 仓库（新窗口打开）"
             target="_blank"
             rel="noopener"
           >
             <span class="card-index">06</span>
             <h3>milkman</h3>
-            <p>跟踪 ChatGPT Plus / OpenCode Go 等 coding plan 额度的桌面用量浮窗。</p>
+            <p>
+              跟踪 ChatGPT Plus / OpenCode Go 等 coding plan
+              额度的桌面用量浮窗。
+            </p>
             <span class="card-action">查看仓库</span>
           </a>
           <a
-            class="feature-card app-card is-live"
+            class="feature-card app-card"
             href="https://github.com/jerry2262/DeepSeekTimeline"
+            aria-label="查看 DeepSeekTimeline 仓库（新窗口打开）"
             target="_blank"
             rel="noopener"
           >
@@ -129,8 +133,9 @@
             <span class="card-action">查看仓库</span>
           </a>
           <a
-            class="feature-card app-card is-live"
+            class="feature-card app-card"
             href="https://github.com/jerry2262/income-cal"
+            aria-label="查看 income-cal 仓库（新窗口打开）"
             target="_blank"
             rel="noopener"
           >
@@ -140,8 +145,9 @@
             <span class="card-action">查看仓库</span>
           </a>
           <a
-            class="feature-card app-card is-live"
+            class="feature-card app-card"
             href="https://github.com/jerry2262/ai-translator"
+            aria-label="查看 ai-translator 仓库（新窗口打开）"
             target="_blank"
             rel="noopener"
           >
@@ -151,8 +157,9 @@
             <span class="card-action">查看仓库</span>
           </a>
           <a
-            class="feature-card app-card is-live"
+            class="feature-card app-card"
             href="https://github.com/jerry2262/pet"
+            aria-label="查看 pet 仓库（新窗口打开）"
             target="_blank"
             rel="noopener"
           >
@@ -181,7 +188,13 @@
           <p class="eyebrow">Contact</p>
           <h2>有新的想法或项目，欢迎联系。</h2>
         </div>
-        <a class="button contact-button" href="https://github.com/jerry2262">
+        <a
+          class="button contact-button"
+          href="https://github.com/jerry2262"
+          aria-label="打开 Jerry 的 GitHub（新窗口打开）"
+          target="_blank"
+          rel="noopener"
+        >
           打开 GitHub
         </a>
       </section>

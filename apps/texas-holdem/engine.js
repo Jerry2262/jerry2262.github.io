@@ -37,7 +37,11 @@ const PokerEngine = (() => {
       return a.category - b.category;
     }
 
-    for (let index = 0; index < Math.max(a.kickers.length, b.kickers.length); index += 1) {
+    for (
+      let index = 0;
+      index < Math.max(a.kickers.length, b.kickers.length);
+      index += 1
+    ) {
       const diff = (a.kickers[index] || 0) - (b.kickers[index] || 0);
 
       if (diff !== 0) {
@@ -161,7 +165,11 @@ const PokerEngine = (() => {
 
   function evaluateBestHand(cards) {
     if (cards.length < 5) {
-      return { category: 0, kickers: uniqueDescending(cards.map((card) => card.rank)), name: "未成牌" };
+      return {
+        category: 0,
+        kickers: uniqueDescending(cards.map((card) => card.rank)),
+        name: "未成牌",
+      };
     }
 
     return combinations(cards).reduce((best, combo) => {
@@ -171,7 +179,7 @@ const PokerEngine = (() => {
   }
 
   function cloneData(value) {
-    return JSON.parse(JSON.stringify(value));
+    return structuredClone(value);
   }
 
   class TexasHoldemEngine {
@@ -181,11 +189,41 @@ const PokerEngine = (() => {
       this.aiProvider = aiProvider;
       this.players = [
         { id: "hero", name: "你", isHuman: true, stack: 1000 },
-        { id: "ai-1", name: "稳健 AI", isHuman: false, stack: 1000, style: "tight" },
-        { id: "ai-2", name: "激进 AI", isHuman: false, stack: 1000, style: "loose" },
-        { id: "ai-3", name: "均衡 AI", isHuman: false, stack: 1000, style: "balanced" },
-        { id: "ai-4", name: "谨慎 AI", isHuman: false, stack: 1000, style: "tight" },
-        { id: "ai-5", name: "松凶 AI", isHuman: false, stack: 1000, style: "loose" },
+        {
+          id: "ai-1",
+          name: "稳健 AI",
+          isHuman: false,
+          stack: 1000,
+          style: "tight",
+        },
+        {
+          id: "ai-2",
+          name: "激进 AI",
+          isHuman: false,
+          stack: 1000,
+          style: "loose",
+        },
+        {
+          id: "ai-3",
+          name: "均衡 AI",
+          isHuman: false,
+          stack: 1000,
+          style: "balanced",
+        },
+        {
+          id: "ai-4",
+          name: "谨慎 AI",
+          isHuman: false,
+          stack: 1000,
+          style: "tight",
+        },
+        {
+          id: "ai-5",
+          name: "松凶 AI",
+          isHuman: false,
+          stack: 1000,
+          style: "loose",
+        },
       ];
       this.dealerIndex = -1;
       this.logs = [];
@@ -226,6 +264,7 @@ const PokerEngine = (() => {
         player.bet = 0;
         player.committed = 0;
         player.acted = false;
+        player.raiseAllowed = true;
         player.lastAction = "";
         player.bestHand = null;
       });
@@ -234,10 +273,20 @@ const PokerEngine = (() => {
       this.postBlinds();
       this.currentPlayerIndex = this.nextActionSeat(this.bigBlindIndex);
       this.log(`按钮在 ${this.players[this.dealerIndex].name}，发出新一局。`);
+
+      // 盲注已使所有剩余玩家全下（如单挑双方恰好被盲注打光），
+      // 此时无人可行动，直接推进牌局至摊牌，避免 currentPlayerIndex=-1 永久冻结。
+      if (this.currentPlayerIndex === -1) {
+        this.advance();
+      }
     }
 
     postBlinds() {
-      this.smallBlindIndex = this.nextSeat(this.dealerIndex);
+      const activePlayers = this.players.filter((player) => player.stack > 0);
+      this.smallBlindIndex =
+        activePlayers.length === 2
+          ? this.dealerIndex
+          : this.nextSeat(this.dealerIndex);
       this.bigBlindIndex = this.nextSeat(this.smallBlindIndex);
       this.commit(this.players[this.smallBlindIndex], this.smallBlind);
       this.players[this.smallBlindIndex].lastAction = `小盲 ${this.smallBlind}`;
@@ -271,11 +320,16 @@ const PokerEngine = (() => {
     }
 
     canPlayerAct(player) {
-      return !player.folded && !player.allIn && player.stack > 0 && !this.handOver;
+      return (
+        !player.folded && !player.allIn && player.stack > 0 && !this.handOver
+      );
     }
 
     get pot() {
-      return this.players.reduce((total, player) => total + player.committed, 0);
+      return this.players.reduce(
+        (total, player) => total + player.committed,
+        0,
+      );
     }
 
     commit(player, amount) {
@@ -298,20 +352,29 @@ const PokerEngine = (() => {
     getRaiseLimits(player) {
       const toCall = this.getToCall(player);
       const maxRaiseTo = player.bet + player.stack;
-      const minRaiseTo = this.currentBet + this.minRaise;
+      const fullRaiseTo = this.currentBet + this.minRaise;
+      const canFundFullRaise = maxRaiseTo >= fullRaiseTo;
+      const minRaiseTo = canFundFullRaise ? fullRaiseTo : maxRaiseTo;
 
       return {
         minRaiseTo,
         maxRaiseTo,
-        defaultRaiseTo: Math.min(minRaiseTo, maxRaiseTo),
-        canRaise: player.stack > toCall && maxRaiseTo >= minRaiseTo,
+        defaultRaiseTo: minRaiseTo,
+        canRaise:
+          player.raiseAllowed !== false &&
+          player.stack > toCall &&
+          maxRaiseTo > this.currentBet,
       };
     }
 
     getLegalActions(playerId = "hero") {
       const player = this.players.find((item) => item.id === playerId);
 
-      if (!player || this.players[this.currentPlayerIndex]?.id !== playerId || this.handOver) {
+      if (
+        !player ||
+        this.players[this.currentPlayerIndex]?.id !== playerId ||
+        this.handOver
+      ) {
         return {};
       }
 
@@ -348,54 +411,122 @@ const PokerEngine = (() => {
         return;
       }
 
-      const action = this.aiProvider?.chooseAction(this.getAiContext(player)) || { type: "check" };
-      this.applyAction(player, action);
+      let action;
+
+      try {
+        action = this.aiProvider?.chooseAction(this.getAiContext(player));
+      } catch (error) {
+        console.error(
+          "AI provider failed; using a legal fallback action.",
+          error,
+        );
+        this.log(`${player.name} 的 AI 决策失败，已使用保守策略。`);
+      }
+
+      this.applyAction(player, this.normalizeAiAction(player, action));
+    }
+
+    normalizeAiAction(player, action) {
+      const legal = this.getLegalActions(player.id);
+
+      if (action?.type === "raise" && legal.raise) {
+        return { type: "raise", raiseTo: action.raiseTo };
+      }
+
+      if (action?.type === "fold" && legal.fold) {
+        return { type: "fold" };
+      }
+
+      if (action?.type === "call" && legal.call) {
+        return { type: "call" };
+      }
+
+      if (action?.type === "check" && legal.check) {
+        return { type: "check" };
+      }
+
+      if (legal.check) {
+        return { type: "check" };
+      }
+
+      if (legal.call) {
+        return { type: "call" };
+      }
+
+      return { type: "fold" };
     }
 
     applyAction(player, action) {
       const toCall = this.getToCall(player);
+      let applied = action;
 
-      if (action.type === "fold" && toCall > 0) {
+      // 非法加注（canRaise 为假）不得静默吞掉行动：
+      // 降级为跟注/过牌，保证回合一定推进。
+      if (applied.type === "raise" && !this.getRaiseLimits(player).canRaise) {
+        applied = toCall > 0 ? { type: "call" } : { type: "check" };
+      }
+
+      if (applied.type === "fold" && toCall > 0) {
         player.folded = true;
         player.acted = true;
+        player.raiseAllowed = false;
         player.lastAction = "弃牌";
         this.log(`${player.name} 弃牌。`);
-      } else if (action.type === "raise") {
+      } else if (applied.type === "raise") {
         const raiseLimits = this.getRaiseLimits(player);
-
-        if (!raiseLimits.canRaise) {
-          return;
-        }
-
-        const requested = Number(action.raiseTo);
+        const requested = Number(applied.raiseTo);
         const target = Math.min(
           raiseLimits.maxRaiseTo,
-          Math.max(raiseLimits.minRaiseTo, Number.isFinite(requested) ? requested : raiseLimits.defaultRaiseTo)
+          Math.max(
+            raiseLimits.minRaiseTo,
+            Number.isFinite(requested) ? requested : raiseLimits.defaultRaiseTo,
+          ),
         );
         const previousBet = this.currentBet;
         const needed = target - player.bet;
         this.commit(player, needed);
 
         if (player.bet > this.currentBet) {
+          const raiseSize = player.bet - previousBet;
+          const isFullRaise = raiseSize >= this.minRaise;
           this.currentBet = player.bet;
-          this.minRaise = Math.max(this.bigBlind, this.currentBet - previousBet);
+
+          if (isFullRaise) {
+            this.minRaise = raiseSize;
+          }
+
           this.players.forEach((item) => {
-            if (item.id !== player.id && !item.folded && !item.allIn) {
+            if (
+              item.id !== player.id &&
+              !item.folded &&
+              !item.allIn &&
+              item.bet < this.currentBet
+            ) {
               item.acted = false;
+
+              if (isFullRaise) {
+                item.raiseAllowed = true;
+              }
             }
           });
+
+          player.lastAction = isFullRaise
+            ? `加注到 ${player.bet}`
+            : `全下到 ${player.bet}`;
         }
 
         player.acted = true;
-        player.lastAction = `加注到 ${player.bet}`;
-        this.log(`${player.name} 加注到 ${player.bet}。`);
+        player.raiseAllowed = false;
+        this.log(`${player.name} ${player.lastAction}。`);
       } else if (toCall > 0) {
         const paid = this.commit(player, toCall);
         player.acted = true;
+        player.raiseAllowed = false;
         player.lastAction = paid < toCall ? `全下 ${paid}` : `跟注 ${paid}`;
         this.log(`${player.name} ${player.lastAction}。`);
       } else {
         player.acted = true;
+        player.raiseAllowed = false;
         player.lastAction = "过牌";
         this.log(`${player.name} 过牌。`);
       }
@@ -428,11 +559,13 @@ const PokerEngine = (() => {
     isBettingRoundComplete() {
       const actors = this.activeActors();
 
-      if (actors.length < 2) {
+      if (actors.length === 0) {
         return true;
       }
 
-      return actors.every((player) => player.acted && player.bet === this.currentBet);
+      return actors.every(
+        (player) => player.acted && player.bet === this.currentBet,
+      );
     }
 
     advanceStage() {
@@ -448,6 +581,7 @@ const PokerEngine = (() => {
       this.players.forEach((player) => {
         player.bet = 0;
         player.acted = false;
+        player.raiseAllowed = true;
       });
       this.currentBet = 0;
       this.minRaise = this.bigBlind;
@@ -482,33 +616,85 @@ const PokerEngine = (() => {
     showdown() {
       this.stage = "showdown";
       const contenders = this.remainingPlayers();
+      const totalPot = this.pot;
       contenders.forEach((player) => {
         player.bestHand = evaluateBestHand([...player.hole, ...this.community]);
       });
 
-      let best = null;
-      contenders.forEach((player) => {
-        if (!best || compareScores(player.bestHand, best) > 0) {
-          best = player.bestHand;
-        }
-      });
-
-      const winners = contenders.filter((player) => compareScores(player.bestHand, best) === 0);
-      const share = Math.floor(this.pot / winners.length);
-      winners.forEach((player) => {
-        player.stack += share;
-      });
+      const payouts = this.distributeShowdownPots(contenders);
+      const winners = this.players.filter(
+        (player) => (payouts.get(player.id) || 0) > 0,
+      );
+      const payoutText = winners
+        .map((player) => `${player.name} ${payouts.get(player.id)}`)
+        .join("、");
 
       this.handOver = true;
       this.winners = winners.map((player) => player.id);
-      this.statusText = `${winners.map((player) => player.name).join("、")} 赢得 ${this.pot}`;
-      this.log(`摊牌：${this.statusText}，牌型 ${best.name}。`);
+      this.statusText = `${payoutText}（底池 ${totalPot}）`;
+      this.log(`摊牌：${this.statusText}。`);
+    }
+
+    distributeShowdownPots(contenders) {
+      const levels = [
+        ...new Set(
+          this.players
+            .map((player) => player.committed)
+            .filter((amount) => amount > 0),
+        ),
+      ].sort((first, second) => first - second);
+      const payouts = new Map();
+      let previousLevel = 0;
+
+      levels.forEach((level) => {
+        const contributors = this.players.filter(
+          (player) => player.committed >= level,
+        );
+        const amount = (level - previousLevel) * contributors.length;
+        previousLevel = level;
+
+        if (contributors.length === 1) {
+          const contributor = contributors[0];
+          contributor.stack += amount;
+          return;
+        }
+
+        const eligible = contenders.filter(
+          (player) => player.committed >= level,
+        );
+        let best = null;
+        eligible.forEach((player) => {
+          if (!best || compareScores(player.bestHand, best) > 0) {
+            best = player.bestHand;
+          }
+        });
+        const potWinners = eligible.filter(
+          (player) => compareScores(player.bestHand, best) === 0,
+        );
+        const share = Math.floor(amount / potWinners.length);
+        let remainder = amount % potWinners.length;
+
+        potWinners.forEach((player) => {
+          const payout = share + (remainder > 0 ? 1 : 0);
+          remainder = Math.max(0, remainder - 1);
+          player.stack += payout;
+          payouts.set(player.id, (payouts.get(player.id) || 0) + payout);
+        });
+      });
+
+      return payouts;
     }
 
     getAiContext(player) {
       return {
         player: cloneData(player),
-        players: cloneData(this.players),
+        players: this.players.map((item) => ({
+          ...cloneData(item),
+          hole:
+            item.id === player.id
+              ? cloneData(item.hole)
+              : item.hole.map(() => ({ hidden: true })),
+        })),
         community: cloneData(this.community),
         stage: this.stage,
         pot: this.pot,
@@ -533,7 +719,9 @@ const PokerEngine = (() => {
         players: this.players.map((player, index) => ({
           ...player,
           seatIndex: index,
-          hole: this.shouldRevealHoleCards(player) ? player.hole : player.hole.map(() => ({ hidden: true })),
+          hole: this.shouldRevealHoleCards(player)
+            ? player.hole
+            : player.hole.map(() => ({ hidden: true })),
         })),
         community: this.community,
         stage: this.stage,
@@ -542,12 +730,16 @@ const PokerEngine = (() => {
         smallBlind: this.smallBlind,
         bigBlind: this.bigBlind,
         currentPlayerId: this.players[this.currentPlayerIndex]?.id,
+        dealerId: this.players[this.dealerIndex]?.id,
         currentBet: this.currentBet,
         handOver: this.handOver,
         winners: this.winners,
         statusText: this.statusText,
         legalActions: this.getLegalActions("hero"),
-        logs: this.logs.slice(-8).reverse(),
+        logs: this.logs.slice(-8).reduceRight((result, entry) => {
+          result.push(entry);
+          return result;
+        }, []),
       };
     }
 

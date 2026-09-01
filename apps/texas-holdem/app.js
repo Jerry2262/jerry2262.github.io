@@ -18,6 +18,7 @@ const newHandButton = document.querySelector("#newHandButton");
 const resetButton = document.querySelector("#resetButton");
 
 let aiBusy = false;
+let aiError = false;
 
 function render() {
   const state = engine.getPublicState();
@@ -33,49 +34,44 @@ function render() {
 }
 
 function renderSeats(state) {
-  seatsElement.innerHTML = "";
-
-  state.players.forEach((player) => {
+  const seats = state.players.map((player) => {
     const seat = document.createElement("article");
     seat.className = `seat seat-${player.seatIndex}`;
+    seat.classList.toggle("is-current", state.currentPlayerId === player.id);
+    seat.classList.toggle("is-folded", player.folded);
+    seat.classList.toggle("is-dealer", state.dealerId === player.id);
+    seat.classList.toggle("is-winner", state.winners.includes(player.id));
 
-    if (state.currentPlayerId === player.id) {
-      seat.classList.add("is-current");
-    }
+    const head = document.createElement("div");
+    head.className = "seat-head";
+    const name = document.createElement("span");
+    name.className = "seat-name";
+    name.textContent = player.name;
+    const dealer = document.createElement("span");
+    dealer.className = "dealer";
+    dealer.textContent = "D";
+    head.append(name, dealer);
 
-    if (player.folded) {
-      seat.classList.add("is-folded");
-    }
+    const cards = document.createElement("div");
+    cards.className = "cards";
+    renderCards(cards, player.hole, 2);
 
-    if (player.seatIndex === getDealerIndex(state.players)) {
-      seat.classList.add("is-dealer");
-    }
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const stack = document.createElement("span");
+    stack.textContent = `筹码 ${player.stack}`;
+    const bet = document.createElement("span");
+    bet.textContent = `下注 ${player.bet}`;
+    meta.append(stack, bet);
 
-    if (state.winners.includes(player.id)) {
-      seat.classList.add("is-winner");
-    }
-
-    seat.innerHTML = `
-      <div class="seat-head">
-        <span class="seat-name">${player.name}</span>
-        <span class="dealer">D</span>
-      </div>
-      <div class="cards"></div>
-      <div class="meta">
-        <span>筹码 ${player.stack}</span>
-        <span>下注 ${player.bet}</span>
-      </div>
-      <div class="last-action">${player.lastAction || "&nbsp;"}</div>
-    `;
-
-    renderCards(seat.querySelector(".cards"), player.hole, 2);
-    seatsElement.append(seat);
+    const lastAction = document.createElement("div");
+    lastAction.className = "last-action";
+    lastAction.textContent = player.lastAction || "\u00a0";
+    seat.append(head, cards, meta, lastAction);
+    return seat;
   });
-}
 
-function getDealerIndex(players) {
-  const dealer = engine.players[engine.dealerIndex];
-  return players.find((player) => player.id === dealer?.id)?.seatIndex ?? 0;
+  seatsElement.replaceChildren(...seats);
 }
 
 function renderCards(container, cards, targetCount) {
@@ -115,7 +111,8 @@ function suitText(suit) {
 
 function renderActions(state) {
   const actions = state.legalActions;
-  const isHeroTurn = state.currentPlayerId === "hero" && !state.handOver && !aiBusy;
+  const isHeroTurn =
+    state.currentPlayerId === "hero" && !state.handOver && !aiBusy;
   const toCall = actions.toCall || 0;
 
   foldButton.disabled = !isHeroTurn || !actions.fold;
@@ -143,7 +140,12 @@ function renderActions(state) {
     raiseAmountInput.removeAttribute("max");
   }
 
-  if (state.handOver) {
+  newHandButton.disabled = (!state.handOver && !aiError) || aiBusy;
+  resetButton.disabled = (!state.handOver && !aiError) || aiBusy;
+
+  if (aiError) {
+    actionHint.textContent = "AI 出错，无法继续本局。可点击「重置筹码」或「下一局」恢复。";
+  } else if (state.handOver) {
     actionHint.textContent = "本局结束，可以开始下一局。";
   } else if (state.currentPlayerId === "hero") {
     if (actions.raise) {
@@ -152,16 +154,26 @@ function renderActions(state) {
           ? `轮到你行动，需要跟注 ${toCall}。加注范围 ${actions.minRaiseTo}-${actions.maxRaiseTo}。`
           : `轮到你行动，可以过牌或加注。加注范围 ${actions.minRaiseTo}-${actions.maxRaiseTo}。`;
     } else {
-      actionHint.textContent = toCall > 0 ? `轮到你行动，需要跟注 ${toCall}。` : "轮到你行动，可以过牌。";
+      actionHint.textContent =
+        toCall > 0
+          ? `轮到你行动，需要跟注 ${toCall}。`
+          : "轮到你行动，可以过牌。";
     }
   } else {
-    const player = state.players.find((item) => item.id === state.currentPlayerId);
+    const player = state.players.find(
+      (item) => item.id === state.currentPlayerId,
+    );
     actionHint.textContent = `${player?.name || "AI"} 正在思考。`;
   }
 }
 
 function renderLogs(logs) {
-  logPanel.innerHTML = logs.map((item) => `<div>${item}</div>`).join("");
+  const entries = logs.map((item) => {
+    const entry = document.createElement("div");
+    entry.textContent = item;
+    return entry;
+  });
+  logPanel.replaceChildren(...entries);
 }
 
 function act(type) {
@@ -170,7 +182,8 @@ function act(type) {
   }
 
   const legal = engine.getPublicState().legalActions;
-  const action = type === "raise" ? { type, raiseTo: getRaiseAmount(legal) } : { type };
+  const action =
+    type === "raise" ? { type, raiseTo: getRaiseAmount(legal) } : { type };
   engine.playerAction(action);
   render();
   progressAi();
@@ -183,7 +196,10 @@ function getRaiseAmount(legal) {
     return legal.defaultRaiseTo;
   }
 
-  return Math.min(legal.maxRaiseTo, Math.max(legal.minRaiseTo, Math.floor(raw)));
+  return Math.min(
+    legal.maxRaiseTo,
+    Math.max(legal.minRaiseTo, Math.floor(raw)),
+  );
 }
 
 async function progressAi() {
@@ -192,21 +208,31 @@ async function progressAi() {
   }
 
   aiBusy = true;
+  render();
 
-  while (!engine.handOver) {
-    const player = engine.players[engine.currentPlayerIndex];
+  try {
+    while (true) {
+      const state = engine.getPublicState();
+      const player = state.players.find(
+        (item) => item.id === state.currentPlayerId,
+      );
 
-    if (!player || player.isHuman) {
-      break;
+      if (state.handOver || !player || player.isHuman) {
+        break;
+      }
+
+      await sleep(520);
+      engine.aiAction();
+      render();
     }
-
-    await sleep(520);
-    engine.aiAction();
+  } catch (error) {
+    aiError = true;
+    console.error("AI progression failed.", error);
+    render();
+  } finally {
+    aiBusy = false;
     render();
   }
-
-  aiBusy = false;
-  render();
 }
 
 function sleep(ms) {
@@ -220,11 +246,25 @@ checkButton.addEventListener("click", () => act("check"));
 callButton.addEventListener("click", () => act("call"));
 raiseButton.addEventListener("click", () => act("raise"));
 newHandButton.addEventListener("click", () => {
+  const state = engine.getPublicState();
+
+  if ((!state.handOver && !aiError) || aiBusy) {
+    return;
+  }
+
+  aiError = false;
   engine.startNewHand();
   render();
   progressAi();
 });
 resetButton.addEventListener("click", () => {
+  const state = engine.getPublicState();
+
+  if ((!state.handOver && !aiError) || aiBusy) {
+    return;
+  }
+
+  aiError = false;
   engine.resetSession();
   render();
   progressAi();

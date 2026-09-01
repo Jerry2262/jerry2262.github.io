@@ -97,8 +97,9 @@ function placeMines(safeRow, safeColumn) {
     });
 
   cells.flat().forEach((cell) => {
-    cell.adjacent = neighbors(cell.row, cell.column).filter((item) => item.isMine)
-      .length;
+    cell.adjacent = neighbors(cell.row, cell.column).filter(
+      (item) => item.isMine,
+    ).length;
   });
 }
 
@@ -116,14 +117,20 @@ function cellKey(row, column) {
 }
 
 function isInside(row, column) {
-  return row >= 0 && row < config.rows && column >= 0 && column < config.columns;
+  return (
+    row >= 0 && row < config.rows && column >= 0 && column < config.columns
+  );
 }
 
 function neighbors(row, column) {
   const result = [];
 
   for (let nextRow = row - 1; nextRow <= row + 1; nextRow += 1) {
-    for (let nextColumn = column - 1; nextColumn <= column + 1; nextColumn += 1) {
+    for (
+      let nextColumn = column - 1;
+      nextColumn <= column + 1;
+      nextColumn += 1
+    ) {
       if (
         (nextRow !== row || nextColumn !== column) &&
         isInside(nextRow, nextColumn)
@@ -137,6 +144,15 @@ function neighbors(row, column) {
 }
 
 function render() {
+  const focusedButton = document.activeElement?.closest?.(".cell");
+  const focusedPosition =
+    focusedButton && boardElement.contains(focusedButton)
+      ? {
+          row: Number(focusedButton.dataset.row),
+          column: Number(focusedButton.dataset.column),
+        }
+      : null;
+
   boardElement.innerHTML = "";
   boardElement.style.gridTemplateColumns = `repeat(${config.columns}, var(--cell-size))`;
   boardElement.style.setProperty("--cell-size", `${config.cellSize}px`);
@@ -168,26 +184,46 @@ function render() {
 
     boardElement.append(button);
   });
+
+  if (focusedPosition && !gameOver) {
+    restoreBoardFocus(focusedPosition);
+  }
+}
+
+function restoreBoardFocus({ row, column }) {
+  const candidates = [...boardElement.querySelectorAll(".cell:not(:disabled)")];
+  candidates.sort((first, second) => {
+    const firstDistance =
+      Math.abs(Number(first.dataset.row) - row) +
+      Math.abs(Number(first.dataset.column) - column);
+    const secondDistance =
+      Math.abs(Number(second.dataset.row) - row) +
+      Math.abs(Number(second.dataset.column) - column);
+    return firstDistance - secondDistance;
+  });
+  candidates[0]?.focus({ preventScroll: true });
 }
 
 function cellLabel(cell) {
+  const position = `第 ${cell.row + 1} 行第 ${cell.column + 1} 列`;
+
   if (cell.isOpen && cell.isMine) {
-    return "地雷";
+    return `${position}，地雷`;
   }
 
   if (cell.isOpen && cell.adjacent > 0) {
-    return `已打开，周围有 ${cell.adjacent} 个地雷`;
+    return `${position}，已打开，周围有 ${cell.adjacent} 个地雷`;
   }
 
   if (cell.isOpen) {
-    return "已打开的空格";
+    return `${position}，已打开的空格`;
   }
 
   if (cell.isFlagged) {
-    return "已标记地雷";
+    return `${position}，已标记地雷`;
   }
 
-  return "未打开格子";
+  return `${position}，未打开格子`;
 }
 
 function handleCellClick(event) {
@@ -223,6 +259,10 @@ function getCellFromButton(button) {
 
 function toggleFlag(cell) {
   if (cell.isOpen) {
+    return;
+  }
+
+  if (!cell.isFlagged && flags >= config.mines) {
     return;
   }
 
@@ -321,6 +361,7 @@ function updateStatus() {
 function showMessage(title) {
   messageTitle.textContent = title;
   message.hidden = false;
+  messageButton.focus();
 }
 
 function hideMessage() {
@@ -332,7 +373,10 @@ function setLevel(nextLevel) {
   config = levels[levelName];
 
   levelButtons.forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.level === levelName));
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.level === levelName),
+    );
   });
 
   startGame();
@@ -340,7 +384,7 @@ function setLevel(nextLevel) {
 
 function toggleMode() {
   flagMode = !flagMode;
-  modeButton.textContent = flagMode ? "标旗" : "打开";
+  modeButton.textContent = flagMode ? "标旗模式" : "翻开模式";
   modeButton.setAttribute("aria-pressed", String(flagMode));
 }
 

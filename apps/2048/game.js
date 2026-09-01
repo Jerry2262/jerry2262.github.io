@@ -16,6 +16,7 @@ let bestScore = readBestScore();
 let previousState = null;
 let hasWon = false;
 let locked = false;
+let messageAction = "restart";
 let touchStart = null;
 
 function createEmptyBoard() {
@@ -69,15 +70,23 @@ function addRandomTile() {
     return;
   }
 
-  const [row, column] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+  const [row, column] =
+    emptyCells[Math.floor(Math.random() * emptyCells.length)];
   board[row][column] = Math.random() < 0.9 ? 2 : 4;
 }
 
 function render() {
   boardElement.innerHTML = "";
 
-  board.flat().forEach((value) => {
+  board.flat().forEach((value, index) => {
     const cell = document.createElement("div");
+    const row = Math.floor(index / size) + 1;
+    const column = (index % size) + 1;
+    cell.setAttribute("role", "gridcell");
+    cell.setAttribute(
+      "aria-label",
+      `第 ${row} 行第 ${column} 列，${value === 0 ? "空格" : value}`,
+    );
 
     if (value === 0) {
       cell.className = "cell";
@@ -119,7 +128,9 @@ function slideAndMerge(row) {
 }
 
 function transpose(source) {
-  return source[0].map((_, columnIndex) => source.map((row) => row[columnIndex]));
+  return source[0].map((_, columnIndex) =>
+    source.map((row) => row[columnIndex]),
+  );
 }
 
 function move(direction) {
@@ -141,7 +152,9 @@ function move(direction) {
   }
 
   if (direction === "right" || direction === "down") {
-    workingBoard = workingBoard.map((row) => [...row].reverse());
+    workingBoard = workingBoard.map((row) =>
+      row.map((_, index) => row[row.length - 1 - index]),
+    );
   }
 
   workingBoard = workingBoard.map((row) => {
@@ -151,7 +164,9 @@ function move(direction) {
   });
 
   if (direction === "right" || direction === "down") {
-    workingBoard = workingBoard.map((row) => [...row].reverse());
+    workingBoard = workingBoard.map((row) =>
+      row.map((_, index) => row[row.length - 1 - index]),
+    );
   }
 
   if (direction === "up" || direction === "down") {
@@ -185,7 +200,10 @@ function canMove() {
         return true;
       }
 
-      if (board[row][column + 1] === value || board[row + 1]?.[column] === value) {
+      if (
+        board[row][column + 1] === value ||
+        board[row + 1]?.[column] === value
+      ) {
         return true;
       }
     }
@@ -195,26 +213,48 @@ function canMove() {
 }
 
 function checkGameState() {
+  const hasAvailableMove = canMove();
+
   if (!hasWon && board.flat().includes(2048)) {
     hasWon = true;
     locked = true;
-    showMessage("达成 2048");
+    showMessage(
+      hasAvailableMove ? "达成 2048" : "达成 2048 · 游戏结束",
+      hasAvailableMove ? "continue" : "restart",
+    );
     return;
   }
 
-  if (!canMove()) {
+  if (!hasAvailableMove) {
     locked = true;
-    showMessage("游戏结束");
+    showMessage("游戏结束", "restart");
   }
 }
 
-function showMessage(title) {
+function showMessage(title, action) {
+  messageAction = action;
   messageTitle.textContent = title;
+  messageButton.textContent = action === "continue" ? "继续游戏" : "再来一局";
   message.hidden = false;
+  messageButton.focus();
 }
 
 function hideMessage() {
   message.hidden = true;
+}
+
+function handleMessageAction() {
+  if (messageAction === "continue") {
+    // 已确认的胜利不能再被撤销回滚，清掉达成 2048 前的快照。
+    previousState = null;
+    locked = false;
+    hideMessage();
+    render();
+    boardElement.focus({ preventScroll: true });
+    return;
+  }
+
+  startGame();
 }
 
 function undoMove() {
@@ -284,10 +324,12 @@ function handleTouchEnd(event) {
 }
 
 newGameButton.addEventListener("click", startGame);
-messageButton.addEventListener("click", startGame);
+messageButton.addEventListener("click", handleMessageAction);
 undoButton.addEventListener("click", undoMove);
 document.addEventListener("keydown", handleKeydown);
-boardElement.addEventListener("touchstart", handleTouchStart, { passive: true });
+boardElement.addEventListener("touchstart", handleTouchStart, {
+  passive: true,
+});
 boardElement.addEventListener("touchend", handleTouchEnd, { passive: true });
 
 directionButtons.forEach((button) => {

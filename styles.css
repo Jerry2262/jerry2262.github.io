@@ -5,12 +5,19 @@
   --line: #d8e0dc;
   --paper: #fbfcf8;
   --wash: #eef5f2;
+  --panel: #ffffff;
+  --panel-glass: rgba(255, 255, 255, 0.84);
   --teal: #0f766e;
-  --coral: #d95d4f;
+  --coral: #b7463b;
   --gold: #c39b37;
   --charcoal: #24302d;
   --shadow: 0 24px 70px rgba(24, 34, 31, 0.14);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+  --radius: 8px;
+  --header-height: 72px;
+  --content-max: 1200px;
+  --page-x: clamp(18px, 5vw, 72px);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 }
 
@@ -22,6 +29,10 @@ html {
   scroll-behavior: smooth;
 }
 
+section[id] {
+  scroll-margin-top: 88px;
+}
+
 body {
   margin: 0;
   color: var(--ink);
@@ -31,6 +42,12 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
 }
 
 img {
@@ -45,8 +62,8 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 72px;
-  padding: 14px clamp(18px, 5vw, 72px);
+  min-height: var(--header-height);
+  padding: 14px max(var(--page-x), calc((100vw - var(--content-max)) / 2));
   background: rgba(251, 252, 248, 0.86);
   border-bottom: 1px solid rgba(216, 224, 220, 0.7);
   backdrop-filter: blur(18px);
@@ -90,8 +107,8 @@ img {
   gap: clamp(28px, 5vw, 72px);
   align-items: center;
   min-height: min(74svh, 720px);
-  padding: clamp(34px, 6vw, 78px) clamp(18px, 5vw, 72px)
-    clamp(26px, 5vw, 54px);
+  padding-block: clamp(34px, 6vw, 78px) clamp(26px, 5vw, 54px);
+  padding-inline: max(var(--page-x), calc((100vw - var(--content-max)) / 2));
   overflow: hidden;
 }
 
@@ -100,10 +117,10 @@ img {
 }
 
 .eyebrow {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   color: var(--teal);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -157,9 +174,12 @@ h3 {
   padding: 0 20px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  font-weight: 760;
-  transition: transform 160ms ease, border-color 160ms ease,
-    background 160ms ease, color 160ms ease;
+  font-weight: 800;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
 }
 
 .button:hover {
@@ -205,7 +225,8 @@ h3 {
 }
 
 .section {
-  padding: clamp(42px, 7vw, 92px) clamp(18px, 5vw, 72px);
+  padding-block: clamp(42px, 7vw, 92px);
+  padding-inline: max(var(--page-x), calc((100vw - var(--content-max)) / 2));
 }
 
 .intro-section {
@@ -240,13 +261,15 @@ h3 {
   display: block;
   min-height: 220px;
   padding: 24px;
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 .app-card {
-  transition: transform 160ms ease, border-color 160ms ease,
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
     box-shadow 160ms ease;
 }
 
@@ -282,7 +305,8 @@ h3 {
   gap: 24px;
   align-items: center;
   justify-content: space-between;
-  margin: 0 clamp(18px, 5vw, 72px) clamp(28px, 5vw, 64px);
+  margin: 0 max(var(--page-x), calc((100vw - var(--content-max)) / 2))
+    clamp(28px, 5vw, 64px);
   padding: clamp(28px, 5vw, 46px);
   color: #fff;
   background: var(--charcoal);
@@ -340,7 +364,7 @@ h3 {
 
 @media (max-width: 860px) {
   .site-header {
-    min-height: 64px;
+    min-height: var(--header-height);
   }
 
   .hero {
@@ -388,6 +412,10 @@ h3 {
 }
 
 @media (max-width: 560px) {
+  section[id] {
+    scroll-margin-top: 118px;
+  }
+
   .site-header {
     align-items: flex-start;
     flex-direction: column;
@@ -414,5 +442,21 @@ h3 {
   h2,
   .contact-band h2 {
     font-size: 1.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .button,
+  .app-card {
+    transition: none;
+  }
+
+  .button:hover,
+  .app-card:hover {
+    transform: none;
   }
 }
