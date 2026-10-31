@@ -257,6 +257,10 @@ h3 {
   margin-top: 28px;
 }
 
+.toys-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
 .feature-card {
   display: block;
   min-height: 220px;

@@ -18,7 +18,7 @@ The one tooling script is the secret-page encryptor: `node scripts/encrypt-secre
 
 ### Homepage as entry, apps as the body
 
-`index.html` + `styles.css` form the landing page. Apps are linked as cards in `.feature-grid`. When adding an app: create `apps/<name>/` with its own `index.html` (+ `style.css`/`game.js` as needed), then add a card in `index.html`. The grid column count in `styles.css` (`.feature-grid` `grid-template-columns`) must match the number of cards, and there is a mid-width breakpoint that drops it to 2 columns — adjust both when adding/removing apps.
+`index.html` + `styles.css` form the landing page. Apps are linked as cards in `.feature-grid`; the toys row adds a `.toys-grid` modifier so its column count (6) can differ from the projects row (5). When adding an app: create `apps/<name>/` with its own `index.html` (+ `style.css`/`game.js` as needed), then add a card in `index.html`. Keep each grid's column count in `styles.css` matching its number of cards, and note the mid-width breakpoint that drops both to 2 columns — adjust when adding/removing cards.
 
 Each app is fully self-contained (own HTML, CSS, JS) with no shared runtime; they link back to the homepage via `../../index.html`.
 
